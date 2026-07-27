@@ -1,0 +1,699 @@
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<style>
+  :root{
+    --paper:#FAFAF6; --ink:#161310; --tape:#E8590C; --tape-dark:#C24700;
+    --muted:#726B62; --line:#E4DFD5; --ok:#2E7D32; --warn:#B4260A; --amber:#B67B0B;
+  }
+  *{box-sizing:border-box;}
+  .cos-root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;color:var(--ink);background:var(--paper);padding:24px;min-height:100vh;}
+  .cos-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--ink);padding-bottom:12px;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+  .cos-eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;}
+  .cos-title{font-size:26px;font-weight:900;letter-spacing:-0.02em;margin:2px 0 0 0;}
+  .cos-headright{display:flex;align-items:center;gap:14px;}
+  .cos-date{font-size:14px;font-weight:700;color:var(--muted);}
+  .cos-signout{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;background:none;border:1px solid var(--ink);padding:6px 10px;cursor:pointer;}
+  .cos-signout:hover{background:var(--ink);color:#fff;}
+
+  .cos-tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .cos-tab{padding:9px 14px;font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;}
+  .cos-tab.active{color:var(--ink);border-bottom-color:var(--tape);}
+
+  .cos-panel{display:none;}
+  .cos-panel.active{display:block;}
+
+  .cos-card{background:#fff;border:1px solid var(--line);padding:16px 18px;margin-bottom:16px;}
+  .cos-card h3{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0 0 12px 0;font-weight:800;}
+
+  .cos-grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
+  @media (max-width:880px){.cos-grid2{grid-template-columns:1fr;}}
+
+  .cos-scorewrap{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+  @media (max-width:700px){.cos-scorewrap{grid-template-columns:repeat(2,1fr);}}
+  .cos-scorebox{background:#fff;border:1px solid var(--line);padding:14px;text-align:center;}
+  .cos-scorebox .num{font-size:26px;font-weight:900;}
+  .cos-scorebox .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;margin-top:2px;}
+  .cos-scorebox.overall{background:var(--ink);color:#fff;}
+  .cos-scorebox.overall .lbl{color:#cfc9c1;}
+
+  .cos-due-item{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border:1px solid var(--line);margin-bottom:6px;font-size:13px;}
+  .cos-due-item.overdue{border-color:var(--warn);background:#FDEDE9;}
+  .cos-due-item.today{border-color:var(--amber);background:#FFF6E8;}
+  .cos-due-tag{font-size:9.5px;font-weight:800;text-transform:uppercase;padding:2px 7px;background:var(--ink);color:#fff;letter-spacing:.04em;}
+  .cos-due-tag.overdue{background:var(--warn);}
+  .cos-due-tag.today{background:var(--amber);}
+  .cos-empty-msg{color:var(--muted);font-size:13px;padding:8px 0;}
+
+  label.cos-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:10px 0 4px;}
+  select.cos-input,input.cos-input,textarea.cos-input{width:100%;padding:8px 10px;border:1px solid var(--ink);font-size:13px;font-family:inherit;background:#fff;color:var(--ink);}
+  textarea.cos-input{resize:vertical;min-height:50px;}
+  .cos-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .cos-btn{margin-top:14px;padding:10px 16px;background:var(--ink);color:#fff;border:none;font-weight:800;font-size:12.5px;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;}
+  .cos-btn:hover{background:var(--tape-dark);}
+  .cos-btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--ink);}
+  .cos-btn.secondary:hover{background:var(--paper);}
+  .cos-btn.small{padding:6px 10px;font-size:11px;margin-top:0;}
+
+  .cos-proj-list{display:flex;flex-direction:column;gap:8px;}
+  .cos-proj{border:1px solid var(--line);padding:12px 14px;}
+  .cos-proj-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .cos-proj-title{font-weight:800;font-size:13.5px;}
+  .cos-proj-meta{font-size:11.5px;color:var(--muted);margin-top:2px;}
+  .cos-stage-pill{font-size:10px;font-weight:800;text-transform:uppercase;padding:3px 9px;letter-spacing:.04em;white-space:nowrap;}
+  .stage-brief{background:#EFEAE3;color:var(--ink);}
+  .stage-executed{background:#DCE7F5;color:#1D4E8C;}
+  .stage-review{background:#F5E7C4;color:#8A6100;}
+  .stage-approved{background:#DDEFDD;color:var(--ok);}
+  .stage-scheduled{background:#E4DDF5;color:#5A3D9C;}
+  .stage-stats_done{background:var(--ink);color:#fff;}
+  .cos-proj-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+  .cos-proj-history{font-size:11px;color:var(--muted);margin-top:8px;border-top:1px solid var(--line);padding-top:6px;}
+
+  .cos-stats-form{display:none;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px;}
+  .cos-stats-form.open{display:block;}
+
+  .cos-filterbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  .cos-filterbar select{padding:6px 8px;font-size:12px;border:1px solid var(--ink);}
+
+  .cos-calview-toggle{display:flex;gap:6px;margin-bottom:14px;}
+  .cos-calview-toggle button{padding:7px 14px;font-size:11.5px;font-weight:800;text-transform:uppercase;border:1px solid var(--ink);background:#fff;cursor:pointer;}
+  .cos-calview-toggle button.active{background:var(--ink);color:#fff;}
+
+  .cos-week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .cos-day{border:1px solid var(--line);padding:8px;min-height:90px;font-size:11px;}
+  .cos-day .dn{font-weight:800;font-size:12px;margin-bottom:5px;}
+  .cos-day.today{border-color:var(--tape);background:#FFF6EE;}
+  .cos-day-item{background:#F1EEE7;padding:2px 5px;margin-bottom:3px;font-size:10px;}
+
+  .cos-month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+  .cos-mcell{border:1px solid var(--line);min-height:64px;padding:5px;font-size:11px;}
+  .cos-mcell.otherm{opacity:.35;}
+  .cos-mcell.today{border-color:var(--tape);background:#FFF6EE;}
+  .cos-mcell .dn{font-weight:800;}
+  .cos-mcell .cnt{display:inline-block;margin-top:3px;background:var(--tape);color:#fff;font-size:9.5px;font-weight:800;padding:1px 5px;}
+
+  .cos-journal-entry{border:1px solid var(--line);padding:12px 14px;margin-bottom:10px;}
+  .cos-journal-entry .jd{font-size:11px;color:var(--muted);font-weight:700;}
+  .cos-journal-entry .jc{font-size:13px;white-space:pre-wrap;margin-top:5px;max-height:140px;overflow-y:auto;}
+
+  .cos-gate{min-height:80vh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px 20px;}
+  .cos-gate .cos-title{font-size:32px;margin-bottom:6px;}
+  .cos-gate p{color:var(--muted);font-size:14px;max-width:340px;margin:10px 0 22px;}
+  .cos-google-btn{display:flex;align-items:center;gap:10px;padding:12px 22px;background:var(--ink);color:#fff;border:none;font-weight:800;font-size:13.5px;letter-spacing:.02em;cursor:pointer;}
+  .cos-google-btn:hover{background:var(--tape-dark);}
+  .cos-loading{color:var(--muted);font-size:13px;padding:60px;text-align:center;}
+</style>
+
+<div class="cos-root" id="cos-root" style="display:none;">
+  <div id="cos-gate" class="cos-gate" style="display:none;">
+    <div class="cos-eyebrow">Marketing · LNIG Hollard</div>
+    <div class="cos-title">Content Ops</div>
+    <p>Sign in to see and log your own content pipeline, calendar, and scores.</p>
+    <button class="cos-google-btn" id="cos-signin">Sign in with Google</button>
+  </div>
+
+  <div id="cos-app" style="display:none;">
+    <div class="cos-head">
+      <div>
+        <div class="cos-eyebrow">Marketing · LNIG Hollard</div>
+        <div class="cos-title">Content Ops</div>
+      </div>
+      <div class="cos-headright">
+        <div class="cos-date" id="cos-datehead"></div>
+        <button class="cos-signout" id="cos-signout">Sign out</button>
+      </div>
+    </div>
+
+    <div class="cos-tabs">
+      <div class="cos-tab active" data-tab="dashboard">Dashboard</div>
+      <div class="cos-tab" data-tab="calendar">Calendar</div>
+      <div class="cos-tab" data-tab="projects">Projects</div>
+      <div class="cos-tab" data-tab="newspaper">Newspaper & Radio</div>
+      <div class="cos-tab" data-tab="events">Events</div>
+      <div class="cos-tab" data-tab="journal">Journal</div>
+    </div>
+
+    <div class="cos-panel active" id="panel-dashboard">
+      <div class="cos-scorewrap" id="cos-scorewrap"></div>
+      <div class="cos-grid2">
+        <div class="cos-card">
+          <h3>Due this week</h3>
+          <div id="cos-due-list"></div>
+        </div>
+        <div class="cos-card">
+          <h3>Add a project</h3>
+          <label class="cos-label">Title</label>
+          <input class="cos-input" id="np-title" placeholder="e.g. Karabelo Funeral post - after-tears angle">
+          <div class="cos-row2">
+            <div>
+              <label class="cos-label">Type</label>
+              <select class="cos-input" id="np-type">
+                <option value="funeral">Life — Funeral Cover post</option>
+                <option value="eb-carousel">Life — EB carousel</option>
+                <option value="insure-post">Insure post</option>
+                <option value="newspaper">Newspaper ad</option>
+                <option value="radio">Radio</option>
+                <option value="event">Event</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label class="cos-label">With</label>
+              <input class="cos-input" id="np-collab" placeholder="Who you're working with">
+            </div>
+          </div>
+          <label class="cos-label">Brief sent date</label>
+          <input class="cos-input" type="date" id="np-briefdate">
+          <button class="cos-btn" id="np-add">Add project</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cos-panel" id="panel-calendar">
+      <div class="cos-calview-toggle">
+        <button data-view="daily" class="active">Daily</button>
+        <button data-view="weekly">Weekly</button>
+        <button data-view="monthly">Monthly</button>
+      </div>
+      <div class="cos-card" id="cos-calbody"></div>
+    </div>
+
+    <div class="cos-panel" id="panel-projects">
+      <div class="cos-filterbar">
+        <select id="pf-stage">
+          <option value="">All stages</option>
+          <option value="brief">Brief sent</option>
+          <option value="executed">Executed</option>
+          <option value="review">In review</option>
+          <option value="approved">Approved</option>
+          <option value="scheduled">Scheduled/Posted</option>
+          <option value="stats_done">Stats logged</option>
+        </select>
+        <select id="pf-type">
+          <option value="">All types</option>
+          <option value="funeral">Life — Funeral</option>
+          <option value="eb-carousel">Life — EB carousel</option>
+          <option value="insure-post">Insure post</option>
+          <option value="newspaper">Newspaper</option>
+          <option value="radio">Radio</option>
+          <option value="event">Event</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="cos-proj-list" id="cos-proj-list"></div>
+    </div>
+
+    <div class="cos-panel" id="panel-newspaper">
+      <div class="cos-card">
+        <h3>Newspaper ads (run ~3 weeks before a change is due)</h3>
+        <div class="cos-proj-list" id="cos-newspaper-list"></div>
+      </div>
+      <div class="cos-card">
+        <h3>Radio (added as and when you're told)</h3>
+        <div class="cos-proj-list" id="cos-radio-list"></div>
+      </div>
+    </div>
+
+    <div class="cos-panel" id="panel-events">
+      <div class="cos-card">
+        <h3>Add event</h3>
+        <div class="cos-row2">
+          <div><label class="cos-label">Title</label><input class="cos-input" id="ev-title" placeholder="e.g. Lehakoe fitness bootcamp"></div>
+          <div><label class="cos-label">Date</label><input class="cos-input" type="date" id="ev-date"></div>
+        </div>
+        <label class="cos-label">Notes</label>
+        <textarea class="cos-input" id="ev-notes"></textarea>
+        <button class="cos-btn" id="ev-add">Add event</button>
+      </div>
+      <div class="cos-card">
+        <h3>Events on file</h3>
+        <div class="cos-proj-list" id="cos-events-list"></div>
+      </div>
+    </div>
+
+    <div class="cos-panel" id="panel-journal">
+      <div class="cos-card">
+        <h3>Add journal entry</h3>
+        <label class="cos-label">Note (paste text, feedback, comments received, anything)</label>
+        <textarea class="cos-input" id="jr-text" style="min-height:90px;"></textarea>
+        <label class="cos-label">Or upload a file (.txt, .md, .docx)</label>
+        <input type="file" id="jr-file" accept=".txt,.md,.docx">
+        <button class="cos-btn" id="jr-add">Save to journal</button>
+        <div class="cos-empty-msg" id="jr-status"></div>
+      </div>
+      <div class="cos-card">
+        <h3>Journal</h3>
+        <div id="cos-journal-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="cos-loading" id="cos-loading">Loading...</div>
+
+<script>
+(function(){
+  const SUPABASE_URL = "https://pxkaetpfddtwiykmovob.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_72IoMbHmmo66Iwlvd8u4_g_O-zkZZqT";
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const STAGE_LABEL = {brief:"Brief sent",executed:"Executed",review:"In review",approved:"Approved",scheduled:"Scheduled/Posted",stats_done:"Stats logged"};
+  const TYPE_LABEL = {funeral:"Life — Funeral","eb-carousel":"Life — EB carousel","insure-post":"Insure post",newspaper:"Newspaper",radio:"Radio",event:"Event",other:"Other"};
+
+  let DATA = { projects: [], journal: [], autoWeeksGenerated: [] };
+  let nextId = 1;
+  let currentUser = null;
+
+  function uid(){ return 'p' + (nextId++) + '_' + Date.now().toString(36); }
+  function todayISO(){ return new Date().toISOString().slice(0,10); }
+  function addDays(iso, n){ const d = new Date(iso+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); }
+  function fmtShort(iso){ if(!iso) return ''; const d=new Date(iso+'T00:00:00Z'); return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
+  function mondayOf(d){ const day=d.getUTCDay(); const diff=(day===0?-6:1-day); const m=new Date(d); m.setUTCDate(d.getUTCDate()+diff); m.setUTCHours(0,0,0,0); return m; }
+  function isoOf(d){ return d.toISOString().slice(0,10); }
+
+  const ANCHOR_MONDAY = new Date(Date.UTC(2026,6,27));
+  const ANCHOR_TYPE = "Insure";
+  function typeForWeek(monday){
+    const diff = Math.round((monday-ANCHOR_MONDAY)/(7*864e5));
+    const isAnchor = (((diff%2)+2)%2)===0;
+    return isAnchor ? ANCHOR_TYPE : (ANCHOR_TYPE==="Insure"?"Life":"Insure");
+  }
+
+  function showLoading(msg){ document.getElementById('cos-loading').style.display='block'; document.getElementById('cos-loading').textContent = msg || 'Loading...'; document.getElementById('cos-root').style.display='none'; }
+  function showGate(){
+    document.getElementById('cos-loading').style.display='none';
+    document.getElementById('cos-root').style.display='block';
+    document.getElementById('cos-gate').style.display='flex';
+    document.getElementById('cos-app').style.display='none';
+  }
+  function showApp(){
+    document.getElementById('cos-loading').style.display='none';
+    document.getElementById('cos-root').style.display='block';
+    document.getElementById('cos-gate').style.display='none';
+    document.getElementById('cos-app').style.display='block';
+  }
+
+  document.getElementById('cos-signin').addEventListener('click', async ()=>{
+    await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: window.location.href } });
+  });
+  document.getElementById('cos-signout').addEventListener('click', async ()=>{
+    await sb.auth.signOut();
+  });
+
+  async function loadData(){
+    try{
+      const { data, error } = await sb.from('content_ops').select('data').eq('user_id', currentUser.id).maybeSingle();
+      if(data && data.data){
+        DATA = Object.assign({projects:[],journal:[],autoWeeksGenerated:[]}, data.data);
+      } else {
+        DATA = { projects: [], journal: [], autoWeeksGenerated: [] };
+        await sb.from('content_ops').upsert({ user_id: currentUser.id, data: DATA });
+      }
+      DATA.projects.forEach(p=>{ const n=parseInt((p.id||'').replace(/\D/g,''))||0; if(n>=nextId) nextId=n+1; });
+    }catch(e){ console.error('load failed', e); DATA = { projects: [], journal: [], autoWeeksGenerated: [] }; }
+    ensureAutoWeekItems();
+    renderAll();
+  }
+  async function saveData(){
+    if(!currentUser) return;
+    try{
+      await sb.from('content_ops').upsert({ user_id: currentUser.id, data: DATA, updated_at: new Date().toISOString() });
+    }catch(e){ console.error('save failed', e); }
+  }
+
+  function ensureAutoWeekItems(){
+    const thisMonday = mondayOf(new Date());
+    const weekKey = isoOf(thisMonday);
+    if(DATA.autoWeeksGenerated.includes(weekKey)) return;
+    const type = typeForWeek(thisMonday);
+    const stub = (title, ptype) => ({
+      id: uid(), title, type: ptype, collab:'', weekKey,
+      stage:'brief', debriefCount:0,
+      dates:{brief: todayISO(), executed:null, review:null, approved:null, scheduled:null, statsDue:null, statsDone:null},
+      stats:{selfScore:null, comments:'', reach:'', engagement:''},
+      history:[{stage:'brief', date: todayISO(), note:'Auto-added from weekly cadence ('+type+' week)'}]
+    });
+    if(type === 'Life'){
+      DATA.projects.push(stub('Funeral Cover post (Life week)', 'funeral'));
+      DATA.projects.push(stub('EB carousel (Life week)', 'eb-carousel'));
+    } else {
+      DATA.projects.push(stub('Insure post (Insure week)', 'insure-post'));
+    }
+    DATA.autoWeeksGenerated.push(weekKey);
+  }
+
+  function stageAdvance(p, newStage, note){
+    p.stage = newStage;
+    const dateField = {brief:'brief',executed:'executed',review:'review',approved:'approved',scheduled:'scheduled',stats_done:'statsDone'}[newStage];
+    if(dateField) p.dates[dateField] = todayISO();
+    if(newStage === 'scheduled'){ p.dates.statsDue = addDays(todayISO(), 14); }
+    p.history.push({stage:newStage, date: todayISO(), note: note||''});
+  }
+
+  function sendToDebrief(p){
+    p.debriefCount = (p.debriefCount||0) + 1;
+    p.stage = 'brief';
+    p.dates.brief = todayISO();
+    p.dates.executed = null; p.dates.review = null;
+    p.history.push({stage:'brief', date: todayISO(), note:'Sent back to debrief (#'+p.debriefCount+')'});
+  }
+
+  function computeScores(){
+    const all = DATA.projects.filter(p=>p.type!=='event');
+    const completed = all.filter(p=>p.stage==='stats_done');
+    const completionRate = all.length ? Math.round(100*completed.length/all.length) : 0;
+    const debriefTotal = all.reduce((s,p)=>s+(p.debriefCount||0),0);
+    const debriefRate = all.length ? Math.round(100*(1 - Math.min(debriefTotal,all.length)/all.length)) : 100;
+    const scored = completed.filter(p=>p.stats && p.stats.selfScore!=null);
+    const avgSelf = scored.length ? (scored.reduce((s,p)=>s+Number(p.stats.selfScore),0)/scored.length) : null;
+    const avgSelfPct = avgSelf!=null ? Math.round(avgSelf*10) : null;
+    const now = mondayOf(new Date());
+    let expected=0, actual=0;
+    for(let i=0;i<4;i++){
+      const wk = new Date(now); wk.setUTCDate(now.getUTCDate()-i*7);
+      const wkKey = isoOf(wk);
+      const type = typeForWeek(wk);
+      expected += (type==='Life') ? 2 : 1;
+      actual += all.filter(p=>p.weekKey===wkKey && ['funeral','eb-carousel','insure-post'].includes(p.type) && p.stage!=='brief').length;
+    }
+    const cadenceRate = expected ? Math.min(100, Math.round(100*actual/expected)) : 100;
+    const parts = [completionRate, debriefRate, cadenceRate];
+    const base = parts.reduce((a,b)=>a+b,0)/parts.length;
+    let overall = Math.round(avgSelfPct!=null ? (base*0.7 + avgSelfPct*0.3) : base);
+    return {completionRate, debriefRate, cadenceRate, avgSelfPct, overall};
+  }
+
+  function renderScores(){
+    const s = computeScores();
+    const wrap = document.getElementById('cos-scorewrap');
+    wrap.innerHTML = `
+      <div class="cos-scorebox overall"><div class="num">${s.overall}</div><div class="lbl">Overall score</div></div>
+      <div class="cos-scorebox"><div class="num">${s.completionRate}%</div><div class="lbl">Completion rate</div></div>
+      <div class="cos-scorebox"><div class="num">${s.debriefRate}%</div><div class="lbl">Clean-run rate</div></div>
+      <div class="cos-scorebox"><div class="num">${s.avgSelfPct!=null? s.avgSelfPct+'%' : '—'}</div><div class="lbl">Avg self-score</div></div>
+    `;
+  }
+
+  function getAllDueEvents(){
+    const events = [];
+    DATA.projects.forEach(p=>{
+      if(p.type==='newspaper' && p.dates.expectedEnd){
+        events.push({date:p.dates.expectedEnd, label: p.title+' — change due'});
+      }
+      if(p.stage!=='stats_done' && p.dates.statsDue){
+        events.push({date:p.dates.statsDue, label: p.title+' — log stats'});
+      }
+      if(p.stage==='brief' && p.type!=='event'){
+        events.push({date:p.dates.brief, label: p.title+' — brief needs executing'});
+      }
+      if(p.type==='event' && p.dates.eventDate){
+        events.push({date:p.dates.eventDate, label: p.title+' — event'});
+      }
+    });
+    return events;
+  }
+
+  function renderDueList(){
+    const el = document.getElementById('cos-due-list');
+    const now = new Date(); now.setUTCHours(0,0,0,0);
+    const monday = mondayOf(now);
+    const sunday = new Date(monday); sunday.setUTCDate(monday.getUTCDate()+6);
+    const events = getAllDueEvents().filter(e=>{
+      if(!e.date) return false;
+      const d = new Date(e.date+'T00:00:00Z');
+      return d>=monday && d<=sunday;
+    }).sort((a,b)=>a.date.localeCompare(b.date));
+    if(!events.length){ el.innerHTML = '<div class="cos-empty-msg">Nothing due this week.</div>'; return; }
+    const todayStr = todayISO();
+    el.innerHTML = events.map(e=>{
+      const overdue = e.date < todayStr;
+      const isToday = e.date === todayStr;
+      const cls = overdue ? 'overdue' : (isToday ? 'today':'');
+      const tagCls = overdue ? 'overdue' : (isToday?'today':'');
+      const tagText = overdue ? 'Overdue' : (isToday ? 'Today' : fmtShort(e.date));
+      return `<div class="cos-due-item ${cls}"><span>${e.label}</span><span class="cos-due-tag ${tagCls}">${tagText}</span></div>`;
+    }).join('');
+  }
+
+  function stageActions(p){
+    const btns = [];
+    const order = ['brief','executed','review','approved','scheduled','stats_done'];
+    const idx = order.indexOf(p.stage);
+    if(idx < order.length-1 && p.stage!=='stats_done'){
+      const next = order[idx+1];
+      if(next==='stats_done'){
+        btns.push(`<button class="cos-btn small secondary" data-act="openstats" data-id="${p.id}">Log stats</button>`);
+      } else {
+        btns.push(`<button class="cos-btn small secondary" data-act="advance" data-id="${p.id}" data-next="${next}">${STAGE_LABEL[next]} →</button>`);
+      }
+    }
+    if(['executed','review'].includes(p.stage)){
+      btns.push(`<button class="cos-btn small secondary" data-act="debrief" data-id="${p.id}">Send to debrief</button>`);
+    }
+    btns.push(`<button class="cos-btn small secondary" data-act="delete" data-id="${p.id}">Delete</button>`);
+    return btns.join('');
+  }
+
+  function projCard(p){
+    const stagePillClass = 'stage-'+p.stage;
+    const debriefNote = p.debriefCount ? ` · ${p.debriefCount} debrief${p.debriefCount>1?'s':''}` : '';
+    const histHtml = (p.history||[]).slice(-4).map(h=>`${fmtShort(h.date)}: ${STAGE_LABEL[h.stage]||h.stage}${h.note?' — '+h.note:''}`).join('<br>');
+    const statsForm = p.stage==='approved' || p.stage==='scheduled' ? `
+      <div class="cos-stats-form" id="statsform-${p.id}">
+        <div class="cos-row2">
+          <div><label class="cos-label">Self score (1-10)</label><input class="cos-input" type="number" min="1" max="10" id="score-${p.id}" value="${p.stats.selfScore||''}"></div>
+          <div><label class="cos-label">Reach/engagement</label><input class="cos-input" id="eng-${p.id}" value="${p.stats.engagement||''}"></div>
+        </div>
+        <label class="cos-label">Comments received</label>
+        <textarea class="cos-input" id="comments-${p.id}">${p.stats.comments||''}</textarea>
+        <button class="cos-btn small" data-act="savestats" data-id="${p.id}">Save stats & complete</button>
+      </div>` : '';
+    return `<div class="cos-proj">
+      <div class="cos-proj-top">
+        <div>
+          <div class="cos-proj-title">${p.title}</div>
+          <div class="cos-proj-meta">${TYPE_LABEL[p.type]||p.type}${p.collab?' · with '+p.collab:''}${debriefNote}</div>
+        </div>
+        <span class="cos-stage-pill ${stagePillClass}">${STAGE_LABEL[p.stage]}</span>
+      </div>
+      <div class="cos-proj-actions">${stageActions(p)}</div>
+      <div class="cos-proj-history">${histHtml}</div>
+      ${statsForm}
+    </div>`;
+  }
+
+  function renderProjects(){
+    const stageFilter = document.getElementById('pf-stage').value;
+    const typeFilter = document.getElementById('pf-type').value;
+    const list = DATA.projects.filter(p=>p.type!=='event' && p.type!=='newspaper' && p.type!=='radio')
+      .filter(p=> !stageFilter || p.stage===stageFilter)
+      .filter(p=> !typeFilter || p.type===typeFilter)
+      .sort((a,b)=> (b.dates.brief||'').localeCompare(a.dates.brief||''));
+    const el = document.getElementById('cos-proj-list');
+    el.innerHTML = list.length ? list.map(projCard).join('') : '<div class="cos-empty-msg">No projects match.</div>';
+
+    const npList = DATA.projects.filter(p=>p.type==='newspaper');
+    document.getElementById('cos-newspaper-list').innerHTML = npList.length ? npList.map(projCard).join('') : '<div class="cos-empty-msg">No newspaper ads on file.</div>';
+    const radioList = DATA.projects.filter(p=>p.type==='radio');
+    document.getElementById('cos-radio-list').innerHTML = radioList.length ? radioList.map(projCard).join('') : '<div class="cos-empty-msg">No radio items on file.</div>';
+
+    const evList = DATA.projects.filter(p=>p.type==='event').sort((a,b)=>(a.dates.eventDate||'').localeCompare(b.dates.eventDate||''));
+    document.getElementById('cos-events-list').innerHTML = evList.length ? evList.map(evCard).join('') : '<div class="cos-empty-msg">No events on file.</div>';
+  }
+
+  function evCard(p){
+    return `<div class="cos-proj">
+      <div class="cos-proj-top">
+        <div><div class="cos-proj-title">${p.title}</div><div class="cos-proj-meta">${fmtShort(p.dates.eventDate)}</div></div>
+        <button class="cos-btn small secondary" data-act="delete" data-id="${p.id}">Delete</button>
+      </div>
+      ${p.notes?`<div class="cos-proj-meta" style="margin-top:6px;">${p.notes}</div>`:''}
+    </div>`;
+  }
+
+  let calView = 'daily';
+  function renderCalendar(){
+    const el = document.getElementById('cos-calbody');
+    const events = getAllDueEvents();
+    if(calView==='daily'){
+      const t = todayISO();
+      const todays = events.filter(e=>e.date===t);
+      el.innerHTML = '<h3>'+fmtShort(t)+'</h3>' + (todays.length? todays.map(e=>`<div class="cos-due-item"><span>${e.label}</span></div>`).join('') : '<div class="cos-empty-msg">Nothing due today.</div>');
+    } else if(calView==='weekly'){
+      const monday = mondayOf(new Date());
+      let html = '<div class="cos-week-grid">';
+      for(let i=0;i<7;i++){
+        const d = new Date(monday); d.setUTCDate(monday.getUTCDate()+i);
+        const iso = isoOf(d);
+        const dayEvents = events.filter(e=>e.date===iso);
+        const isToday = iso===todayISO();
+        html += `<div class="cos-day ${isToday?'today':''}"><div class="dn">${d.toLocaleDateString(undefined,{weekday:'short',day:'numeric'})}</div>${dayEvents.map(e=>`<div class="cos-day-item">${e.label}</div>`).join('')}</div>`;
+      }
+      html += '</div>';
+      el.innerHTML = html;
+    } else {
+      const now = new Date();
+      const year = now.getUTCFullYear(), month = now.getUTCMonth();
+      const firstOfMonth = new Date(Date.UTC(year,month,1));
+      const startGrid = mondayOf(firstOfMonth);
+      let html = '<div class="cos-month-grid">';
+      for(let i=0;i<42;i++){
+        const d = new Date(startGrid); d.setUTCDate(startGrid.getUTCDate()+i);
+        const iso = isoOf(d);
+        const otherMonth = d.getUTCMonth()!==month;
+        const isToday = iso===todayISO();
+        const cnt = events.filter(e=>e.date===iso).length;
+        html += `<div class="cos-mcell ${otherMonth?'otherm':''} ${isToday?'today':''}"><div class="dn">${d.getUTCDate()}</div>${cnt?`<div class="cnt">${cnt}</div>`:''}</div>`;
+      }
+      html += '</div>';
+      el.innerHTML = html;
+    }
+  }
+
+  function renderJournal(){
+    const el = document.getElementById('cos-journal-list');
+    const entries = (DATA.journal||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+    el.innerHTML = entries.length ? entries.map(j=>`<div class="cos-journal-entry"><div class="jd">${fmtShort(j.date)}${j.source?' · '+j.source:''}</div><div class="jc">${(j.text||'').replace(/</g,'&lt;')}</div></div>`).join('') : '<div class="cos-empty-msg">No journal entries yet.</div>';
+  }
+
+  function renderAll(){
+    document.getElementById('cos-datehead').textContent = new Date().toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric', year:'numeric'});
+    renderScores();
+    renderDueList();
+    renderProjects();
+    renderCalendar();
+    renderJournal();
+  }
+
+  document.querySelectorAll('.cos-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('.cos-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.cos-panel').forEach(p=>p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.cos-calview-toggle button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.cos-calview-toggle button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      calView = btn.dataset.view;
+      renderCalendar();
+    });
+  });
+
+  document.getElementById('np-add').addEventListener('click', async ()=>{
+    const title = document.getElementById('np-title').value.trim();
+    if(!title) return;
+    const type = document.getElementById('np-type').value;
+    const collab = document.getElementById('np-collab').value.trim();
+    const briefDate = document.getElementById('np-briefdate').value || todayISO();
+    const p = {
+      id: uid(), title, type, collab, weekKey: isoOf(mondayOf(new Date())),
+      stage:'brief', debriefCount:0,
+      dates:{brief:briefDate, executed:null, review:null, approved:null, scheduled:null, statsDue:null, statsDone:null},
+      stats:{selfScore:null, comments:'', reach:'', engagement:''},
+      history:[{stage:'brief', date:briefDate, note:'Manually added'}]
+    };
+    if(type==='newspaper'){ p.dates.expectedEnd = addDays(briefDate, 21); }
+    DATA.projects.push(p);
+    document.getElementById('np-title').value='';
+    document.getElementById('np-collab').value='';
+    await saveData(); renderAll();
+  });
+
+  document.getElementById('ev-add').addEventListener('click', async ()=>{
+    const title = document.getElementById('ev-title').value.trim();
+    if(!title) return;
+    const date = document.getElementById('ev-date').value || todayISO();
+    const notes = document.getElementById('ev-notes').value.trim();
+    DATA.projects.push({ id: uid(), title, type:'event', notes, dates:{eventDate:date}, history:[] });
+    document.getElementById('ev-title').value=''; document.getElementById('ev-notes').value='';
+    await saveData(); renderAll();
+  });
+
+  document.getElementById('pf-stage').addEventListener('change', renderProjects);
+  document.getElementById('pf-type').addEventListener('change', renderProjects);
+
+  document.body.addEventListener('click', async (e)=>{
+    const btn = e.target.closest('button[data-act]');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const p = DATA.projects.find(x=>x.id===id);
+    if(!p) return;
+    const act = btn.dataset.act;
+    if(act==='advance'){
+      stageAdvance(p, btn.dataset.next);
+      await saveData(); renderAll();
+    } else if(act==='debrief'){
+      sendToDebrief(p);
+      await saveData(); renderAll();
+    } else if(act==='delete'){
+      DATA.projects = DATA.projects.filter(x=>x.id!==id);
+      await saveData(); renderAll();
+    } else if(act==='openstats'){
+      stageAdvance(p, 'scheduled');
+      await saveData(); renderAll();
+      setTimeout(()=>{ const f=document.getElementById('statsform-'+id); if(f) f.classList.add('open'); }, 30);
+    } else if(act==='savestats'){
+      const score = document.getElementById('score-'+id).value;
+      const eng = document.getElementById('eng-'+id).value;
+      const comments = document.getElementById('comments-'+id).value;
+      p.stats.selfScore = score? Number(score) : null;
+      p.stats.engagement = eng;
+      p.stats.comments = comments;
+      stageAdvance(p, 'stats_done', 'Stats logged');
+      await saveData(); renderAll();
+    }
+  });
+
+  document.getElementById('jr-add').addEventListener('click', async ()=>{
+    const statusEl = document.getElementById('jr-status');
+    const textVal = document.getElementById('jr-text').value.trim();
+    const fileInput = document.getElementById('jr-file');
+    const file = fileInput.files[0];
+    async function pushEntry(text, source){
+      if(!text) return;
+      DATA.journal.push({date: todayISO(), text, source});
+      await saveData(); renderAll();
+      document.getElementById('jr-text').value='';
+      fileInput.value='';
+      statusEl.textContent = 'Saved.';
+    }
+    if(file){
+      statusEl.textContent = 'Reading file...';
+      try{
+        if(file.name.toLowerCase().endsWith('.docx')){
+          const buf = await file.arrayBuffer();
+          const result = await window.mammoth.extractRawText({arrayBuffer: buf});
+          await pushEntry(result.value, file.name);
+        } else {
+          const text = await file.text();
+          await pushEntry(text, file.name);
+        }
+      }catch(err){
+        console.error(err);
+        statusEl.textContent = 'Could not read that file — paste the text instead.';
+      }
+    } else if(textVal){
+      await pushEntry(textVal, 'manual note');
+    }
+  });
+
+  // ---------- AUTH BOOTSTRAP ----------
+  showLoading('Checking sign-in...');
+  sb.auth.onAuthStateChange((event, session) => {
+    if(session && session.user){
+      currentUser = session.user;
+      showApp();
+      loadData();
+    } else {
+      currentUser = null;
+      showGate();
+    }
+  });
+  sb.auth.getSession().then(({data})=>{
+    if(!data.session){ showGate(); }
+  });
+})();
+</script>
