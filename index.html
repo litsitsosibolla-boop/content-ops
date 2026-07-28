@@ -2,7 +2,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <style>
   :root{
-    --paper:#FAFAF6; --ink:#161310; --tape:#E8590C; --tape-dark:#C24700;
+    --paper:#FAFAF6; --ink:#161310; --tape:#E8590C; --tape-dark:#C24700; --tape-soft:#F6C9A6;
     --muted:#726B62; --line:#E4DFD5; --ok:#2E7D32; --warn:#B4260A; --amber:#B67B0B;
   }
   *{box-sizing:border-box;}
@@ -28,15 +28,12 @@
   .cos-grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
   @media (max-width:880px){.cos-grid2{grid-template-columns:1fr;}}
 
-  .cos-scorewrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:10px;}
+  .cos-scorewrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px;}
   .cos-scorebox{background:#fff;border:1px solid var(--line);padding:14px;text-align:center;}
   .cos-scorebox .num{font-size:26px;font-weight:900;}
   .cos-scorebox .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;margin-top:2px;}
-  .cos-scorebox.overall{background:var(--ink);color:#fff;}
-  .cos-scorebox.overall .lbl{color:#cfc9c1;}
-  .cos-scorehelp{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;background:#fff;border:1px dashed var(--line);padding:10px 14px;display:none;}
-  .cos-scorehelp.open{display:block;}
-  .cos-linkbtn{background:none;border:none;color:var(--tape-dark);font-size:11.5px;font-weight:700;cursor:pointer;text-decoration:underline;padding:0;margin-bottom:14px;}
+  .cos-scorebox.hot{background:var(--tape);color:#fff;border-color:var(--tape-dark);}
+  .cos-scorebox.hot .lbl{color:#FFE3CE;}
 
   .cos-due-item{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border:1px solid var(--line);margin-bottom:6px;font-size:13px;}
   .cos-due-item.overdue{border-color:var(--warn);background:#FDEDE9;}
@@ -57,7 +54,7 @@
   .cos-btn.small{padding:6px 10px;font-size:11px;margin-top:0;}
 
   .cos-proj-list{display:flex;flex-direction:column;gap:8px;}
-  .cos-proj{border:1px solid var(--line);padding:12px 14px;}
+  .cos-proj{border:1px solid var(--line);padding:12px 14px;background:#fff;}
   .cos-proj-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
   .cos-proj-title{font-weight:800;font-size:13.5px;}
   .cos-proj-meta{font-size:11.5px;color:var(--muted);margin-top:2px;}
@@ -73,8 +70,12 @@
   .cos-duedate-inline{display:flex;gap:6px;align-items:center;margin-top:8px;}
   .cos-duedate-inline input{padding:5px 7px;font-size:12px;border:1px solid var(--ink);}
 
-  .cos-stats-form{display:none;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px;}
-  .cos-stats-form.open{display:block;}
+  .cos-detail{display:none;margin-top:12px;border-top:1px dashed var(--line);padding-top:12px;}
+  .cos-detail.open{display:block;}
+  .cos-media-grid{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;}
+  .cos-media-grid img{width:90px;height:90px;object-fit:cover;border:1px solid var(--line);}
+  .cos-media-grid .rm{position:relative;}
+  .cos-media-grid .rm button{position:absolute;top:2px;right:2px;background:var(--warn);color:#fff;border:none;font-size:10px;font-weight:800;cursor:pointer;padding:1px 5px;}
 
   .cos-filterbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
   .cos-filterbar select{padding:6px 8px;font-size:12px;border:1px solid var(--ink);}
@@ -84,23 +85,24 @@
   .cos-calview-toggle button.active{background:var(--ink);color:#fff;}
 
   .cos-week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
-  .cos-day{border:1px solid var(--line);padding:8px;min-height:90px;font-size:11px;}
+  .cos-day{border:1px solid var(--line);padding:8px;min-height:90px;font-size:11px;background:#fff;}
   .cos-day .dn{font-weight:800;font-size:12px;margin-bottom:5px;}
   .cos-day.today{border-color:var(--tape);background:#FFF6EE;}
   .cos-day-item{background:#F1EEE7;padding:2px 5px;margin-bottom:3px;font-size:10px;}
 
   .cos-month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
-  .cos-mcell{border:1px solid var(--line);min-height:64px;padding:5px;font-size:11px;}
+  .cos-mcell{border:1px solid var(--line);min-height:64px;padding:5px;font-size:11px;background:#fff;}
   .cos-mcell.otherm{opacity:.35;}
   .cos-mcell.today{border-color:var(--tape);background:#FFF6EE;}
   .cos-mcell .dn{font-weight:800;}
   .cos-mcell .cnt{display:inline-block;margin-top:3px;background:var(--tape);color:#fff;font-size:9.5px;font-weight:800;padding:1px 5px;}
 
-  .cos-journal-entry{border:1px solid var(--line);padding:12px 14px;margin-bottom:10px;}
+  .cos-journal-entry{border:1px solid var(--line);padding:12px 14px;margin-bottom:10px;background:#fff;}
   .cos-journal-entry .jd{font-size:11px;color:var(--muted);font-weight:700;}
   .cos-journal-entry .jc{font-size:13px;white-space:pre-wrap;margin-top:5px;max-height:140px;overflow-y:auto;}
 
-  .cos-principles{background:#FFF6EE;border:1px solid var(--tape-soft,#F6C9A6);padding:12px 14px;font-size:12.5px;line-height:1.6;margin-bottom:14px;}
+  .cos-principles{background:#FFF6EE;border:1px solid var(--tape-soft);padding:12px 14px;font-size:12.5px;line-height:1.6;margin-bottom:14px;}
+  .cos-insights{background:#fff;border:1px solid var(--line);padding:12px 14px;font-size:12.5px;line-height:1.6;margin-bottom:14px;}
   .cos-kind-pill{font-size:9.5px;font-weight:800;text-transform:uppercase;padding:2px 8px;letter-spacing:.04em;background:#EFEAE3;}
   .cos-kind-pill.idea{background:#F5E7C4;}
   .cos-kind-pill.execution{background:#DDEFDD;}
@@ -123,7 +125,7 @@
   <div id="cos-gate" class="cos-gate" style="display:none;">
     <div class="cos-eyebrow">Marketing · LNIG Hollard</div>
     <div class="cos-title">Content Ops</div>
-    <p>Sign in to see and log your own content pipeline, calendar, and scores.</p>
+    <p>Sign in to see and log your own content pipeline, calendar, and completed work.</p>
     <button class="cos-google-btn" id="cos-signin">Sign in with Google</button>
   </div>
 
@@ -143,6 +145,7 @@
       <div class="cos-tab active" data-tab="dashboard">Dashboard</div>
       <div class="cos-tab" data-tab="calendar">Calendar</div>
       <div class="cos-tab" data-tab="projects">Projects</div>
+      <div class="cos-tab" data-tab="completed">Completed Posts</div>
       <div class="cos-tab" data-tab="creating">Creating</div>
       <div class="cos-tab" data-tab="fifty">50 Years</div>
       <div class="cos-tab" data-tab="newspaper">Newspaper & Radio</div>
@@ -152,8 +155,6 @@
 
     <div class="cos-panel active" id="panel-dashboard">
       <div class="cos-scorewrap" id="cos-scorewrap"></div>
-      <button class="cos-linkbtn" id="cos-scorehelp-toggle">How is this score calculated?</button>
-      <div class="cos-scorehelp" id="cos-scorehelp"></div>
       <div class="cos-grid2">
         <div>
           <div class="cos-card">
@@ -220,8 +221,6 @@
           <option value="executed">Executed</option>
           <option value="review">In review</option>
           <option value="approved">Approved</option>
-          <option value="scheduled">Scheduled/Posted</option>
-          <option value="stats_done">Stats logged</option>
         </select>
         <select id="pf-type">
           <option value="">All types</option>
@@ -234,8 +233,16 @@
       <div class="cos-proj-list" id="cos-proj-list"></div>
     </div>
 
+    <div class="cos-panel" id="panel-completed">
+      <div class="cos-card">
+        <h3>Completed posts</h3>
+        <div class="cos-empty-msg">Click a post to open it: add pictures, the caption, platforms, and 1-week stats. This is the record the Creating tab learns from.</div>
+        <div class="cos-proj-list" id="cos-completed-list"></div>
+      </div>
+    </div>
+
     <div class="cos-panel" id="panel-creating">
-      <div class="cos-principles" id="cos-principles">
+      <div class="cos-principles">
         <strong>LNIG creating principles</strong><br>
         1. Optimism first: playful, never doom-and-gloom.<br>
         2. Every post sells from a different angle, a new reason the product matters, not the same message reworded.<br>
@@ -243,6 +250,7 @@
         4. Vary structure and format post to post. No template fatigue.<br>
         5. Payoff line and caption carry separate voices, never echoing each other.
       </div>
+      <div class="cos-insights" id="cos-insights"></div>
       <div class="cos-grid2">
         <div class="cos-card">
           <h3>Idea bank</h3>
@@ -350,7 +358,7 @@
   const SUPABASE_KEY = "sb_publishable_72IoMbHmmo66Iwlvd8u4_g_O-zkZZqT";
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const STAGE_LABEL = {brief:"Brief sent",executed:"Executed",review:"In review",approved:"Approved",scheduled:"Scheduled/Posted",stats_done:"Stats logged"};
+  const STAGE_LABEL = {brief:"Brief sent",executed:"Executed",review:"In review",approved:"Approved",scheduled:"Posted",stats_done:"Stats logged"};
   const TYPE_LABEL = {funeral:"Life · Funeral","eb-carousel":"Life · EB carousel","insure-post":"Insure post",newspaper:"Newspaper",radio:"Radio",event:"Event",other:"Other"};
   const ORDER = ['brief','executed','review','approved','scheduled','stats_done'];
 
@@ -358,6 +366,7 @@
   let nextId = 1;
   let currentUser = null;
   let fiftyFilter = '';
+  let openDetailId = null;
 
   function uid(){ return 'p' + (nextId++) + '_' + Date.now().toString(36); }
   function todayISO(){ return new Date().toISOString().slice(0,10); }
@@ -405,7 +414,11 @@
         DATA = { projects: [], journal: [], ideas: [], fifty: [], autoWeeksGenerated: [] };
         await sb.from('content_ops').upsert({ user_id: currentUser.id, data: DATA });
       }
-      DATA.projects.forEach(p=>{ const n=parseInt((p.id||'').replace(/\D/g,''))||0; if(n>=nextId) nextId=n+1; });
+      DATA.projects.forEach(p=>{
+        const n=parseInt((p.id||'').replace(/\D/g,''))||0; if(n>=nextId) nextId=n+1;
+        p.post = p.post || {media:[], caption:'', platforms:''};
+        p.stats = p.stats || {selfScore:null, comments:'', reach:'', engagement:''};
+      });
     }catch(e){ console.error('load failed', e); }
     ensureAutoWeekItems();
     renderAll();
@@ -427,6 +440,7 @@
       stage:'brief', debriefCount:0,
       dates:{brief: todayISO(), due: friday, executed:null, review:null, approved:null, scheduled:null, statsDue:null, statsDone:null},
       stats:{selfScore:null, comments:'', reach:'', engagement:''},
+      post:{media:[], caption:'', platforms:''},
       history:[{stage:'brief', date: todayISO(), note:'Auto-added from weekly cadence ('+type+' week)'}]
     });
     if(type === 'Life'){
@@ -442,7 +456,7 @@
     p.stage = newStage;
     const dateField = {brief:'brief',executed:'executed',review:'review',approved:'approved',scheduled:'scheduled',stats_done:'statsDone'}[newStage];
     if(dateField) p.dates[dateField] = todayISO();
-    if(newStage === 'scheduled'){ p.dates.statsDue = addDays(todayISO(), 14); }
+    if(newStage === 'scheduled'){ p.dates.statsDue = addDays(todayISO(), 7); }
     p.history.push({stage:newStage, date: todayISO(), note: note||''});
   }
 
@@ -468,46 +482,32 @@
     p.history.push({stage:'brief', date: todayISO(), note:'Sent back to debrief (#'+p.debriefCount+')'});
   }
 
-  function computeScores(){
-    const all = DATA.projects.filter(p=>p.type!=='event');
-    const completed = all.filter(p=>p.stage==='stats_done');
-    const completionRate = all.length ? Math.round(100*completed.length/all.length) : 0;
-    const debriefTotal = all.reduce((s,p)=>s+(p.debriefCount||0),0);
-    const debriefRate = all.length ? Math.round(100*(1 - Math.min(debriefTotal,all.length)/all.length)) : 100;
-    const scored = completed.filter(p=>p.stats && p.stats.selfScore!=null);
-    const avgSelf = scored.length ? (scored.reduce((s,p)=>s+Number(p.stats.selfScore),0)/scored.length) : null;
-    const avgSelfPct = avgSelf!=null ? Math.round(avgSelf*10) : null;
-    const now = mondayOf(new Date());
-    let expected=0, actual=0;
-    for(let i=0;i<4;i++){
-      const wk = new Date(now); wk.setUTCDate(now.getUTCDate()-i*7);
-      const wkKey = isoOf(wk);
-      const type = typeForWeek(wk);
-      expected += (type==='Life') ? 2 : 1;
-      actual += all.filter(p=>p.weekKey===wkKey && ['funeral','eb-carousel','insure-post'].includes(p.type) && p.stage!=='brief').length;
-    }
-    const cadenceRate = expected ? Math.min(100, Math.round(100*actual/expected)) : 100;
-    const parts = [completionRate, debriefRate, cadenceRate];
-    const base = parts.reduce((a,b)=>a+b,0)/parts.length;
-    const overall = Math.round(avgSelfPct!=null ? (base*0.7 + avgSelfPct*0.3) : base);
-    return {completionRate, debriefRate, cadenceRate, avgSelfPct, overall, expected, actual};
+  function computeCounts(){
+    const work = DATA.projects.filter(p=>p.type!=='event');
+    const tomorrow = addDays(todayISO(),1);
+    const dueNow = work.filter(p=>{
+      if(p.stage==='stats_done') return false;
+      const dates = [];
+      if(ORDER.indexOf(p.stage) < ORDER.indexOf('scheduled') && p.dates.due) dates.push(p.dates.due);
+      if(p.stage==='scheduled' && p.dates.statsDue) dates.push(p.dates.statsDue);
+      if(p.type==='newspaper' && p.dates.expectedEnd) dates.push(p.dates.expectedEnd);
+      return dates.some(d=> d <= tomorrow);
+    }).length;
+    const waiting = work.filter(p=> ['brief','review'].includes(p.stage)).length;
+    const withMe = work.filter(p=> ['executed','approved'].includes(p.stage)).length;
+    const postedAwaiting = work.filter(p=> p.stage==='scheduled').length;
+    const done = work.filter(p=> p.stage==='stats_done').length;
+    return {dueNow, waiting, withMe, postedAwaiting, done};
   }
 
-  function renderScores(){
-    const s = computeScores();
+  function renderCounts(){
+    const c = computeCounts();
     document.getElementById('cos-scorewrap').innerHTML = `
-      <div class="cos-scorebox overall"><div class="num">${s.overall}</div><div class="lbl">Overall score</div></div>
-      <div class="cos-scorebox"><div class="num">${s.completionRate}%</div><div class="lbl">Completion</div></div>
-      <div class="cos-scorebox"><div class="num">${s.debriefRate}%</div><div class="lbl">Clean-run</div></div>
-      <div class="cos-scorebox"><div class="num">${s.cadenceRate}%</div><div class="lbl">Cadence (4 wks)</div></div>
-      <div class="cos-scorebox"><div class="num">${s.avgSelfPct!=null? s.avgSelfPct+'%' : '—'}</div><div class="lbl">Avg self-score</div></div>
-    `;
-    document.getElementById('cos-scorehelp').innerHTML = `
-      <strong>Completion</strong>: of everything you've ever logged (${DATA.projects.filter(p=>p.type!=='event').length} items), how many made it all the way to "stats logged". New items pull this down until they finish, so early weeks look low. That is normal.<br>
-      <strong>Clean-run</strong>: how often work goes through without being sent back to debrief.<br>
-      <strong>Cadence</strong>: over the last 4 weeks, expected posts (2 on a Life week, 1 on an Insure week = ${s.expected} expected) vs how many actually moved past brief (${s.actual} so far).<br>
-      <strong>Avg self-score</strong>: the 1-10 ratings you give completed work, shown as a percentage.<br>
-      <strong>Overall</strong>: average of the first three${s.avgSelfPct!=null ? ', weighted 70%, plus your self-score weighted 30%' : ' (self-score joins in at 30% weight once you rate something)'}.
+      <div class="cos-scorebox hot"><div class="num">${c.dueNow}</div><div class="lbl">Due in 24 hrs</div></div>
+      <div class="cos-scorebox"><div class="num">${c.waiting}</div><div class="lbl">Waiting on others</div></div>
+      <div class="cos-scorebox"><div class="num">${c.withMe}</div><div class="lbl">With me</div></div>
+      <div class="cos-scorebox"><div class="num">${c.postedAwaiting}</div><div class="lbl">Posted, stats pending</div></div>
+      <div class="cos-scorebox"><div class="num">${c.done}</div><div class="lbl">Fully completed</div></div>
     `;
   }
 
@@ -517,10 +517,10 @@
       if(p.type==='newspaper' && p.dates.expectedEnd && p.stage!=='stats_done'){
         events.push({date:p.dates.expectedEnd, label: p.title+' · change due'});
       }
-      if(p.stage!=='stats_done' && p.dates.statsDue){
-        events.push({date:p.dates.statsDue, label: p.title+' · log stats'});
+      if(p.stage==='scheduled' && p.dates.statsDue){
+        events.push({date:p.dates.statsDue, label: p.title+' · log 1-week stats'});
       }
-      if(ORDER.indexOf(p.stage) < ORDER.indexOf('approved') && p.type!=='event' && p.dates.due){
+      if(ORDER.indexOf(p.stage) < ORDER.indexOf('scheduled') && p.type!=='event' && p.dates.due){
         events.push({date:p.dates.due, label: p.title+' · due ('+STAGE_LABEL[p.stage].toLowerCase()+')'});
       }
       if(p.type==='event' && p.dates.eventDate){
@@ -553,13 +553,9 @@
   function stageActions(p){
     const btns = [];
     const idx = ORDER.indexOf(p.stage);
-    if(idx < ORDER.length-1){
+    if(p.stage!=='scheduled' && p.stage!=='stats_done'){
       const next = ORDER[idx+1];
-      if(next==='stats_done'){
-        btns.push(`<button class="cos-btn small secondary" data-act="openstats" data-id="${p.id}">Log stats</button>`);
-      } else {
-        btns.push(`<button class="cos-btn small secondary" data-act="advance" data-id="${p.id}" data-next="${next}">${STAGE_LABEL[next]} →</button>`);
-      }
+      btns.push(`<button class="cos-btn small secondary" data-act="advance" data-id="${p.id}" data-next="${next}">${next==='scheduled'?'Posted →':STAGE_LABEL[next]+' →'}</button>`);
     }
     if(p.history && p.history.length > 1){
       btns.push(`<button class="cos-btn small secondary" data-act="stepback" data-id="${p.id}">← Step back</button>`);
@@ -575,21 +571,11 @@
     const debriefNote = p.debriefCount ? ` · ${p.debriefCount} debrief${p.debriefCount>1?'s':''}` : '';
     const dueNote = p.dates.due ? ` · due ${fmtShort(p.dates.due)}` : '';
     const histHtml = (p.history||[]).slice(-4).map(h=>`${fmtShort(h.date)}: ${STAGE_LABEL[h.stage]||h.stage}${h.note?' · '+esc(h.note):''}`).join('<br>');
-    const dueEditor = (ORDER.indexOf(p.stage) < ORDER.indexOf('approved') && p.type!=='event') ? `
+    const dueEditor = (ORDER.indexOf(p.stage) < ORDER.indexOf('scheduled') && p.type!=='event') ? `
       <div class="cos-duedate-inline">
         <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;">Due:</span>
         <input type="date" id="due-${p.id}" value="${p.dates.due||''}">
         <button class="cos-btn small secondary" data-act="setdue" data-id="${p.id}">Set</button>
-      </div>` : '';
-    const statsForm = ['approved','scheduled'].includes(p.stage) ? `
-      <div class="cos-stats-form" id="statsform-${p.id}">
-        <div class="cos-row2">
-          <div><label class="cos-label">Self score (1-10)</label><input class="cos-input" type="number" min="1" max="10" id="score-${p.id}" value="${p.stats.selfScore||''}"></div>
-          <div><label class="cos-label">Reach/engagement</label><input class="cos-input" id="eng-${p.id}" value="${esc(p.stats.engagement||'')}"></div>
-        </div>
-        <label class="cos-label">Comments received</label>
-        <textarea class="cos-input" id="comments-${p.id}">${esc(p.stats.comments||'')}</textarea>
-        <button class="cos-btn small" data-act="savestats" data-id="${p.id}">Save stats & complete</button>
       </div>` : '';
     return `<div class="cos-proj">
       <div class="cos-proj-top">
@@ -602,7 +588,46 @@
       <div class="cos-proj-actions">${stageActions(p)}</div>
       ${dueEditor}
       <div class="cos-proj-history">${histHtml}</div>
-      ${statsForm}
+    </div>`;
+  }
+
+  function completedCard(p){
+    const isOpen = openDetailId === p.id;
+    const mediaThumbs = (p.post.media||[]).map((m,i)=>`<div class="rm"><img src="${m}"><button data-act="rmpic" data-id="${p.id}" data-idx="${i}">x</button></div>`).join('');
+    const detail = isOpen ? `
+      <div class="cos-detail open">
+        <label class="cos-label">Pictures of the post</label>
+        <div class="cos-media-grid">${mediaThumbs}</div>
+        <input type="file" id="pics-${p.id}" accept="image/*" multiple>
+        <button class="cos-btn small secondary" data-act="addpics" data-id="${p.id}" style="margin-top:6px;">Add picture(s)</button>
+        <label class="cos-label">Caption used</label>
+        <textarea class="cos-input" id="cap-${p.id}">${esc(p.post.caption||'')}</textarea>
+        <label class="cos-label">Platforms posted (e.g. Facebook, Instagram, LinkedIn)</label>
+        <input class="cos-input" id="plat-${p.id}" value="${esc(p.post.platforms||'')}">
+        <div class="cos-row2" style="margin-top:6px;">
+          <div><label class="cos-label">1-week reach</label><input class="cos-input" id="reach-${p.id}" value="${esc(p.stats.reach||'')}"></div>
+          <div><label class="cos-label">1-week engagement</label><input class="cos-input" id="eng-${p.id}" value="${esc(p.stats.engagement||'')}"></div>
+        </div>
+        <div class="cos-row2">
+          <div><label class="cos-label">Self score (1-10)</label><input class="cos-input" type="number" min="1" max="10" id="score-${p.id}" value="${p.stats.selfScore||''}"></div>
+          <div><label class="cos-label">Comments received</label><input class="cos-input" id="comments-${p.id}" value="${esc(p.stats.comments||'')}"></div>
+        </div>
+        <div class="cos-proj-actions">
+          <button class="cos-btn small" data-act="savepost" data-id="${p.id}">Save</button>
+          ${p.stage==='scheduled' ? `<button class="cos-btn small secondary" data-act="markdone" data-id="${p.id}">Save & mark stats complete</button>` : ''}
+          <button class="cos-btn small secondary" data-act="stepback" data-id="${p.id}">← Back to pipeline</button>
+        </div>
+      </div>` : '';
+    const statsDueNote = p.stage==='scheduled' && p.dates.statsDue ? ' · stats due '+fmtShort(p.dates.statsDue) : '';
+    return `<div class="cos-proj" style="cursor:pointer;" data-act="toggledetail" data-id="${p.id}">
+      <div class="cos-proj-top">
+        <div>
+          <div class="cos-proj-title">${esc(p.title)}</div>
+          <div class="cos-proj-meta">${TYPE_LABEL[p.type]||p.type} · posted ${fmtShort(p.dates.scheduled)}${statsDueNote}${p.post.platforms?' · '+esc(p.post.platforms):''}</div>
+        </div>
+        <span class="cos-stage-pill stage-${p.stage}">${p.stage==='scheduled'?'Awaiting stats':'Complete'}</span>
+      </div>
+      ${detail}
     </div>`;
   }
 
@@ -610,15 +635,20 @@
     const stageFilter = document.getElementById('pf-stage').value;
     const typeFilter = document.getElementById('pf-type').value;
     const list = DATA.projects.filter(p=>!['event','newspaper','radio'].includes(p.type))
+      .filter(p=> !['scheduled','stats_done'].includes(p.stage))
       .filter(p=> !stageFilter || p.stage===stageFilter)
       .filter(p=> !typeFilter || p.type===typeFilter)
       .sort((a,b)=> (b.dates.brief||'').localeCompare(a.dates.brief||''));
-    document.getElementById('cos-proj-list').innerHTML = list.length ? list.map(projCard).join('') : '<div class="cos-empty-msg">No projects match.</div>';
+    document.getElementById('cos-proj-list').innerHTML = list.length ? list.map(projCard).join('') : '<div class="cos-empty-msg">Nothing in the pipeline. Posted work lives in Completed Posts.</div>';
 
-    const npList = DATA.projects.filter(p=>p.type==='newspaper');
-    document.getElementById('cos-newspaper-list').innerHTML = npList.length ? npList.map(projCard).join('') : '<div class="cos-empty-msg">No newspaper ads on file.</div>';
-    const radioList = DATA.projects.filter(p=>p.type==='radio');
-    document.getElementById('cos-radio-list').innerHTML = radioList.length ? radioList.map(projCard).join('') : '<div class="cos-empty-msg">No radio items on file.</div>';
+    const completed = DATA.projects.filter(p=> ['scheduled','stats_done'].includes(p.stage) && p.type!=='event')
+      .sort((a,b)=> (b.dates.scheduled||'').localeCompare(a.dates.scheduled||''));
+    document.getElementById('cos-completed-list').innerHTML = completed.length ? completed.map(completedCard).join('') : '<div class="cos-empty-msg">Nothing posted yet. When you mark a project "Posted", it moves here.</div>';
+
+    const npList = DATA.projects.filter(p=>p.type==='newspaper' && !['scheduled','stats_done'].includes(p.stage));
+    document.getElementById('cos-newspaper-list').innerHTML = npList.length ? npList.map(projCard).join('') : '<div class="cos-empty-msg">No newspaper ads in progress.</div>';
+    const radioList = DATA.projects.filter(p=>p.type==='radio' && !['scheduled','stats_done'].includes(p.stage));
+    document.getElementById('cos-radio-list').innerHTML = radioList.length ? radioList.map(projCard).join('') : '<div class="cos-empty-msg">No radio items in progress.</div>';
     const evList = DATA.projects.filter(p=>p.type==='event').sort((a,b)=>(a.dates.eventDate||'').localeCompare(b.dates.eventDate||''));
     document.getElementById('cos-events-list').innerHTML = evList.length ? evList.map(evCard).join('') : '<div class="cos-empty-msg">No events on file.</div>';
   }
@@ -631,6 +661,37 @@
       </div>
       ${p.notes?`<div class="cos-proj-meta" style="margin-top:6px;">${esc(p.notes)}</div>`:''}
     </div>`;
+  }
+
+  function num(v){ const n = parseFloat(String(v||'').replace(/[^0-9.]/g,'')); return isNaN(n)?null:n; }
+
+  function renderInsights(){
+    const el = document.getElementById('cos-insights');
+    const done = DATA.projects.filter(p=> p.stage==='stats_done');
+    if(!done.length){
+      el.innerHTML = '<strong>What is working</strong><br><span style="color:var(--muted);">Log 1-week stats on completed posts and this panel will start showing which angles, types, and platforms perform best.</span>';
+      return;
+    }
+    const withEng = done.filter(p=> num(p.stats.engagement)!=null).sort((a,b)=> num(b.stats.engagement)-num(a.stats.engagement));
+    const withScore = done.filter(p=> p.stats.selfScore!=null).sort((a,b)=> b.stats.selfScore-a.stats.selfScore);
+    const byType = {};
+    done.forEach(p=>{
+      const t = TYPE_LABEL[p.type]||p.type;
+      byType[t] = byType[t] || {n:0, eng:0, engN:0};
+      byType[t].n++;
+      const e = num(p.stats.engagement);
+      if(e!=null){ byType[t].eng += e; byType[t].engN++; }
+    });
+    let html = '<strong>What is working (from '+done.length+' completed post'+(done.length>1?'s':'')+')</strong><br>';
+    if(withEng.length){
+      html += 'Top by engagement: ' + withEng.slice(0,3).map(p=> esc(p.title)+' ('+esc(p.stats.engagement)+(p.post.platforms?', '+esc(p.post.platforms):'')+')').join(' · ') + '<br>';
+    }
+    if(withScore.length){
+      html += 'Your highest-rated: ' + withScore.slice(0,3).map(p=> esc(p.title)+' ('+p.stats.selfScore+'/10)').join(' · ') + '<br>';
+    }
+    const typeLines = Object.entries(byType).filter(([,v])=>v.engN).map(([t,v])=> t+': avg engagement '+Math.round(v.eng/v.engN)+' across '+v.engN);
+    if(typeLines.length) html += 'By type: ' + typeLines.join(' · ');
+    el.innerHTML = html;
   }
 
   function renderIdeas(){
@@ -722,29 +783,49 @@
     const nonEvent = DATA.projects.filter(p=>p.type!=='event');
     const posted = nonEvent.filter(p=> inWeek(p.dates.scheduled) || inWeek(p.dates.statsDone));
     const moved = nonEvent.filter(p=> !posted.includes(p) && (p.history||[]).some(h=> inWeek(h.date) && h.stage!=='brief'));
-    const open = nonEvent.filter(p=> p.stage!=='stats_done');
-    const s = computeScores();
+    const open = nonEvent.filter(p=> !['scheduled','stats_done'].includes(p.stage));
+    const c = computeCounts();
     const lines = [];
     lines.push('CONTENT OPS - WEEK OF ' + fmtShort(mIso) + ' to ' + fmtShort(sIso));
     lines.push('');
     lines.push('Posted / completed this week:');
-    lines.push(posted.length ? posted.map(p=>'- '+p.title).join('\n') : '- none');
+    lines.push(posted.length ? posted.map(p=>'- '+p.title+(p.post.platforms?' ('+p.post.platforms+')':'')).join('\n') : '- none');
     lines.push('');
     lines.push('Moved forward this week:');
     lines.push(moved.length ? moved.map(p=>'- '+p.title+' (now: '+STAGE_LABEL[p.stage]+')').join('\n') : '- none');
     lines.push('');
-    lines.push('Still open:');
+    lines.push('Still in the pipeline:');
     lines.push(open.length ? open.map(p=>'- '+p.title+' ('+STAGE_LABEL[p.stage]+(p.dates.due?', due '+fmtShort(p.dates.due):'')+')').join('\n') : '- none');
     lines.push('');
-    lines.push('Scores: overall '+s.overall+' | completion '+s.completionRate+'% | clean-run '+s.debriefRate+'% | cadence '+s.cadenceRate+'%');
+    lines.push('Right now: '+c.dueNow+' due in 24 hrs | '+c.waiting+' waiting on others | '+c.withMe+' with me | '+c.postedAwaiting+' posted awaiting stats | '+c.done+' fully completed');
     return lines.join('\n');
+  }
+
+  function compressImage(file){
+    return new Promise((resolve, reject)=>{
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = ()=>{
+        const maxW = 900;
+        const scale = Math.min(1, maxW / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width*scale);
+        canvas.height = Math.round(img.height*scale);
+        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', 0.72));
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
   }
 
   function renderAll(){
     document.getElementById('cos-datehead').textContent = new Date().toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric', year:'numeric'});
-    renderScores();
+    renderCounts();
     renderDueList();
     renderProjects();
+    renderInsights();
     renderIdeas();
     renderFifty();
     renderCalendar();
@@ -760,13 +841,8 @@
     });
   });
 
-  document.getElementById('cos-scorehelp-toggle').addEventListener('click', ()=>{
-    document.getElementById('cos-scorehelp').classList.toggle('open');
-  });
-
   document.getElementById('cos-report').addEventListener('click', ()=>{
-    const report = buildWeeklyReport();
-    navigator.clipboard.writeText(report).then(()=>toast('Report copied. Paste it anywhere.')).catch(()=>toast('Copy failed on this browser.'));
+    navigator.clipboard.writeText(buildWeeklyReport()).then(()=>toast('Report copied. Paste it anywhere.')).catch(()=>toast('Copy failed on this browser.'));
   });
 
   document.querySelectorAll('.cos-calview-toggle button').forEach(btn=>{
@@ -799,6 +875,7 @@
       stage:'brief', debriefCount:0,
       dates:{brief:briefDate, due:dueDate, executed:null, review:null, approved:null, scheduled:null, statsDue:null, statsDone:null},
       stats:{selfScore:null, comments:'', reach:'', engagement:''},
+      post:{media:[], caption:'', platforms:''},
       history:[{stage:'brief', date:briefDate, note:'Manually added'}]
     };
     if(type==='newspaper'){ p.dates.expectedEnd = addDays(briefDate, 21); }
@@ -814,7 +891,7 @@
     if(!title) return;
     const date = document.getElementById('ev-date').value || todayISO();
     const notes = document.getElementById('ev-notes').value.trim();
-    DATA.projects.push({ id: uid(), title, type:'event', notes, dates:{eventDate:date}, history:[] });
+    DATA.projects.push({ id: uid(), title, type:'event', notes, dates:{eventDate:date}, stats:{}, post:{media:[],caption:'',platforms:''}, history:[] });
     document.getElementById('ev-title').value=''; document.getElementById('ev-notes').value='';
     await saveData(); renderAll();
   });
@@ -850,10 +927,18 @@
   document.getElementById('pf-type').addEventListener('change', renderProjects);
 
   document.body.addEventListener('click', async (e)=>{
-    const btn = e.target.closest('button[data-act]');
-    if(!btn) return;
-    const id = btn.dataset.id;
-    const act = btn.dataset.act;
+    const actEl = e.target.closest('[data-act]');
+    if(!actEl) return;
+    const act = actEl.dataset.act;
+    const id = actEl.dataset.id;
+    if(e.target.closest('input,textarea,select') && act==='toggledetail') return;
+
+    if(act==='toggledetail'){
+      if(e.target.closest('button')) return;
+      openDetailId = (openDetailId===id) ? null : id;
+      renderProjects();
+      return;
+    }
 
     if(act==='promote' || act==='delidea'){
       const idea = DATA.ideas.find(x=>x.id===id);
@@ -866,6 +951,7 @@
           stage:'brief', debriefCount:0,
           dates:{brief: todayISO(), due:null, executed:null, review:null, approved:null, scheduled:null, statsDue:null, statsDone:null},
           stats:{selfScore:null, comments:'', reach:'', engagement:''},
+          post:{media:[], caption:'', platforms:''},
           history:[{stage:'brief', date: todayISO(), note:'Promoted from idea'+(idea.angle?' · angle: '+idea.angle:'')}]
         });
         DATA.ideas = DATA.ideas.filter(x=>x.id!==id);
@@ -885,11 +971,14 @@
 
     const p = DATA.projects.find(x=>x.id===id);
     if(!p) return;
+
     if(act==='advance'){
-      stageAdvance(p, btn.dataset.next);
+      stageAdvance(p, actEl.dataset.next);
+      if(actEl.dataset.next==='scheduled'){ toast('Posted. Find it in Completed Posts to add pics, caption, and stats.'); }
       await saveData(); renderAll();
     } else if(act==='stepback'){
       stepBack(p);
+      openDetailId = null;
       await saveData(); renderAll();
     } else if(act==='debrief'){
       sendToDebrief(p);
@@ -902,17 +991,33 @@
     } else if(act==='delete'){
       DATA.projects = DATA.projects.filter(x=>x.id!==id);
       await saveData(); renderAll();
-    } else if(act==='openstats'){
-      stageAdvance(p, 'scheduled');
-      await saveData(); renderAll();
-      setTimeout(()=>{ const f=document.getElementById('statsform-'+id); if(f) f.classList.add('open'); }, 30);
-    } else if(act==='savestats'){
-      const score = document.getElementById('score-'+id).value;
-      p.stats.selfScore = score? Number(score) : null;
+    } else if(act==='rmpic'){
+      const idx = Number(actEl.dataset.idx);
+      p.post.media.splice(idx,1);
+      await saveData(); renderProjects();
+    } else if(act==='addpics'){
+      const input = document.getElementById('pics-'+id);
+      if(!input || !input.files.length){ toast('Choose picture(s) first.'); return; }
+      toast('Adding picture(s)...');
+      try{
+        for(const f of input.files){
+          const dataUrl = await compressImage(f);
+          p.post.media.push(dataUrl);
+        }
+        await saveData(); renderProjects();
+        toast('Picture(s) added.');
+      }catch(err){ console.error(err); toast('Could not read one of the pictures.'); }
+    } else if(act==='savepost' || act==='markdone'){
+      p.post.caption = document.getElementById('cap-'+id).value;
+      p.post.platforms = document.getElementById('plat-'+id).value;
+      p.stats.reach = document.getElementById('reach-'+id).value;
       p.stats.engagement = document.getElementById('eng-'+id).value;
+      const score = document.getElementById('score-'+id).value;
+      p.stats.selfScore = score ? Number(score) : null;
       p.stats.comments = document.getElementById('comments-'+id).value;
-      stageAdvance(p, 'stats_done', 'Stats logged');
+      if(act==='markdone'){ stageAdvance(p, 'stats_done', '1-week stats logged'); openDetailId = null; }
       await saveData(); renderAll();
+      toast(act==='markdone' ? 'Marked complete. The Creating tab just got smarter.' : 'Saved.');
     }
   });
 
